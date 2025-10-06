@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Auth Container Styles */
+        .auth-container {
+            width: 100%;
+            max-width: 450px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .auth-logo {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin: 0 auto 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .auth-header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .auth-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .auth-body {
+            padding: 40px 30px;
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 12px;
+            background: #f5f5f5;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .auth-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            border-color: #667eea;
+        }
+
+        .password-input-wrapper {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            color: #666;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .form-footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 25px 0;
+            color: #999;
+            font-size: 13px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e0e0e0;
+        }
+
+        .social-login {
+            display: flex;
+            gap: 10px;
+        }
+
+        .social-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s;
+        }
+
+        .social-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        /* Chat Container Styles */
+        .chat-container {
+            display: none;
+            width: 100%;
+            max-width: 800px;
+            height: 90vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp 0.5s ease;
+        }
+
+        .chat-container.active {
+            display: flex;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .bot-avatar {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .bot-info h2 {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .bot-status {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f5f5f5;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .message.bot .message-avatar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .message.user .message-avatar {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            margin: 0 10px;
+        }
+
+        .message.bot .message-content {
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-time {
+            font-size: 11px;
+            opacity: 0.6;
+            margin-top: 5px;
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            background: white;
+            border-radius: 18px;
+            width: fit-content;
+            margin-left: 45px;
+        }
+
+        .typing-indicator.active {
+            display: flex;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #999;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .chat-input {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .input-field:focus {
+            border-color: #667eea;
+        }
+
+        .send-btn {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            transition: transform 0.2s;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .send-btn:active {
+            transform: scale(0.95);
+        }
+
+        .quick-replies {
+            display: flex;
+            gap: 10px;
+            padding: 0 20px 15px;
+            overflow-x: auto;
+        }
+
+        .quick-reply-btn {
+            padding: 8px 16px;
+            background: white;
+            border: 2px solid #667eea;
+            color: #667eea;
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .quick-reply-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .welcome-message {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <!-- Authentication Container -->
+    <div class="auth-container" id="authContainer">
+        <div class="auth-header">
+            <div class="auth-logo">🤖</div>
+            <h1>EduBot</h1>
+            <p>Your intelligent learning companion</p>
+        </div>
+
+        <div class="auth-body">
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchTab('signup')">Sign Up</button>
+                <button class="auth-tab" onclick="switchTab('login')">Login</button>
+            </div>
+
+            <!-- Signup Form -->
+            <form class="auth-form active" id="signupForm" onsubmit="handleSignup(event)">
+                <div class="form-group">
+                    <label for="signupName">Full Name</label>
+                    <input type="text" id="signupName" class="form-input" placeholder="Enter your full name" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupEmail">Email Address</label>
+                    <input type="email" id="signupEmail" class="form-input" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="signupPassword" class="form-input" placeholder="Create a password" required minlength="6">
+                        <button type="button" class="toggle-password" onclick="togglePassword('signupPassword')">👁️</button>
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn">Create Account</button>
+                <div class="form-footer">
+                    Already have an account? <a href="#" onclick="switchTab('login'); return false;">Login</a>
+                </div>
+            </form>
+
+            <!-- Login Form -->
+            <form class="auth-form" id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="loginEmail">Email Address</label>
+                    <input type="email" id="loginEmail" class="form-input" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password" required>
+                        <button type="button" class="toggle-password" onclick="togglePassword('loginPassword')">👁️</button>
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn">Login</button>
+                <div class="form-footer">
+                    Don't have an account? <a href="#" onclick="switchTab('signup'); return false;">Sign Up</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Chat Container -->
+    <div class="chat-container" id="chatContainer">
+        <div class="chat-header">
+            <div class="chat-header-left">
+                <div class="bot-avatar">🤖</div>
+                <div class="bot-info">
+                    <h2>EduBot</h2>
+                    <div class="bot-status">● Online</div>
+                </div>
+            </div>
+            <button class="logout-btn" onclick="handleLogout()">Logout</button>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <div class="welcome-message" id="welcomeMessage"></div>
+        </div>
+
+        <div class="quick-replies">
+            <button class="quick-reply-btn" onclick="sendQuickReply('Help me with math')">Help with Math</button>
+            <button class="quick-reply-btn" onclick="sendQuickReply('Study tips')">Study Tips</button>
+            <button class="quick-reply-btn" onclick="sendQuickReply('Explain a concept')">Explain Concept</button>
+            <button class="quick-reply-btn" onclick="sendQuickReply('Practice questions')">Practice Questions</button>
+        </div>
+
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+        </div>
+
+        <div class="chat-input">
+            <input type="text" class="input-field" id="messageInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
+            <button class="send-btn" onclick="sendMessage()">➤</button>
+        </div>
+    </div>
+
+    <script>
+        // System Design Architecture
+        class ChatbotSystem {
+            constructor() {
+                this.messageHistory = [];
+                this.responses = this.initializeResponses();
+                this.context = {};
+            }
+
+            initializeResponses() {
+                return {
+                    greetings: [
+                        "Hello! I'm EduBot, ready to help you learn today! What subject would you like to explore?",
+                        "Hi there! I'm here to support your learning journey. What can I help you study?",
+                        "Greetings, learner! I'm excited to help you understand new concepts. What topic interests you?"
+                    ],
+                    capabilities: [
+                        "I can help you with: explaining difficult concepts, solving math problems, understanding science topics, improving your writing, learning languages, study tips, homework help, and exam preparation!",
+                        "My learning support includes: tutoring in various subjects, breaking down complex topics, providing practice questions, explaining step-by-step solutions, study strategies, and academic guidance."
+                    ],
+                    help: [
+                        "I'm here to support your learning! I can help with homework, explain difficult concepts, provide study tips, or answer questions about any subject. What do you need help with?",
+                        "Need academic assistance? I can tutor you in math, science, language arts, history, and more. I can also help with study techniques and exam preparation. What subject are you working on?"
+                    ],
+                    fallback: [
+                        "That's a great question! Let me help you think through this. Can you tell me more about what you're trying to learn?",
+                        "I'm processing your question. In the meantime, what subject or topic is this related to? That will help me give you a better answer!",
+                        "Interesting! That's a good learning mindset. While I consider that, is there a specific concept you'd like me to explain?"
+                    ],
+                    math: [
+                        "Math can be challenging, but I'm here to help! What type of math problem are you working on? Algebra, geometry, calculus?",
+                        "Great! Math is all about practice. What mathematical concept would you like me to explain?"
+                    ],
+                    science: [
+                        "Science is fascinating! Are you studying biology, chemistry, physics, or earth science? I can help with any of them!",
+                        "Excellent! Science helps us understand the world. What scientific topic would you like to explore?"
+                    ],
+                    study: [
+                        "Here are some effective study tips: 1) Break study sessions into 25-30 minute chunks, 2) Take short breaks, 3) Practice active recall, 4) Teach concepts to someone else, 5) Create mind maps. What subject are you studying for?",
+                        "Smart studying is key! Try the Pomodoro Technique, make flashcards, summarize notes in your own words, and practice past papers. Need help with a specific subject?"
+                    ],
+                    exam: [
+                        "Exam preparation tips: Start early, review regularly, practice with past papers, get enough sleep, stay organized, and don't cram! What exam are you preparing for?",
+                        "Getting ready for exams? Make a study schedule, focus on understanding rather than memorizing, practice problems, and stay calm. Which subject's exam do you need help with?"
+                    ],
+                    writing: [
+                        "Writing is an important skill! I can help with essay structure, grammar, vocabulary, and creative writing. What type of writing assignment are you working on?",
+                        "Let me help improve your writing! Whether it's an essay, report, or creative piece, I can guide you. What do you need assistance with?"
+                    ],
+                    reading: [
+                        "Reading comprehension is essential! I can help you analyze texts, understand literature, and improve your reading skills. What are you reading?",
+                        "Great! Let's work on your reading. I can help with understanding themes, characters, plot analysis, and critical thinking. What text are you studying?"
+                    ]
+                };
+            }
+
+            processMessage(userMessage) {
+                const msg = userMessage.toLowerCase().trim();
+                
+                // Intent classification for educational topics
+                if (this.matchIntent(msg, ['hello', 'hi', 'hey', 'greetings', 'good morning', 'good afternoon'])) {
+                    return this.getRandomResponse('greetings');
+                }
+                
+                if (this.matchIntent(msg, ['what can you do', 'capabilities', 'help me', 'what do you do', 'how can you help'])) {
+                    return this.getRandomResponse('capabilities');
+                }
+                
+                if (this.matchIntent(msg, ['help', 'assist', 'support', 'need help'])) {
+                    return this.getRandomResponse('help');
+                }
+
+                // Educational subject detection
+                if (this.matchIntent(msg, ['math', 'mathematics', 'algebra', 'geometry', 'calculus', 'arithmetic', 'equation'])) {
+                    return this.getRandomResponse('math');
+                }
+
+                if (this.matchIntent(msg, ['science', 'biology', 'chemistry', 'physics', 'experiment', 'scientific'])) {
+                    return this.getRandomResponse('science');
+                }
+
+                if (this.matchIntent(msg, ['study', 'studying', 'study tips', 'how to study', 'learn better', 'learning'])) {
+                    return this.getRandomResponse('study');
+                }
+
+                if (this.matchIntent(msg, ['exam', 'test', 'quiz', 'examination', 'prepare', 'preparation'])) {
+                    return this.getRandomResponse('exam');
+                }
+
+                if (this.matchIntent(msg, ['write', 'writing', 'essay', 'composition', 'grammar', 'paragraph'])) {
+                    return this.getRandomResponse('writing');
+                }
+
+                if (this.matchIntent(msg, ['read', 'reading', 'literature', 'book', 'story', 'comprehension'])) {
+                    return this.getRandomResponse('reading');
+                }
+
+                // Specific questions
+                if (msg.includes('name')) {
+                    return "I'm EduBot, an educational AI assistant created to help you learn and answer your questions!";
+                }
+
+                if (msg.includes('time')) {
+                    return `The current time is ${new Date().toLocaleTimeString()}. Time to study! 📚`;
+                }
+
+                if (msg.includes('date')) {
+                    return `Today is ${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}. What would you like to learn today?`;
+                }
+
+                if (this.matchIntent(msg, ['how are you', 'how do you do'])) {
+                    return "I'm functioning perfectly and ready to help you learn! What subject would you like to explore today?";
+                }
+
+                if (this.matchIntent(msg, ['homework', 'assignment', 'project'])) {
+                    return "I'd be happy to help with your homework! What subject is it for, and what specific problem or topic do you need help with?";
+                }
+
+                if (this.matchIntent(msg, ['explain', 'what is', 'define', 'definition'])) {
+                    return "I'd love to explain that concept to you! Could you be more specific about which topic or term you'd like me to explain?";
+                }
+
+                if (this.matchIntent(msg, ['practice', 'exercise', 'question'])) {
+                    return "Practice makes perfect! What subject would you like to practice? I can provide exercises and questions to help you improve.";
+                }
+
+                if (this.matchIntent(msg, ['history', 'historical', 'past', 'ancient'])) {
+                    return "History helps us understand the world! What historical period or event would you like to learn about?";
+                }
+
+                if (this.matchIntent(msg, ['language', 'vocabulary', 'words', 'dictionary'])) {
+                    return "Language learning is exciting! Are you working on vocabulary, grammar, or a specific language? Let me know how I can help!";
+                }
+
+                // Default educational fallback
+                return this.getRandomResponse('fallback');
+            }
+
+            matchIntent(message, keywords) {
+                return keywords.some(keyword => message.includes(keyword));
+            }
+
+            getRandomResponse(category) {
+                const responses = this.responses[category];
+                return responses[Math.floor(Math.random() * responses.length)];
+            }
+
+            addToHistory(role, message) {
+                this.messageHistory.push({
+                    role: role,
+                    message: message,
+                    timestamp: new Date()
+                });
+            }
+        }
+
+        // Initialize the chatbot system
+        const chatbot = new ChatbotSystem();
+        const authContainer = document.getElementById('authContainer');
+        const chatContainer = document.getElementById('chatContainer');
+        const messagesContainer = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const typingIndicator = document.getElementById('typingIndicator');
+        let currentUser = null;
+
+        // Auth Functions
+        let userAccounts = {}; // Store user accounts
+
+        function switchTab(tab) {
+            const tabs = document.querySelectorAll('.auth-tab');
+            const forms = document.querySelectorAll('.auth-form');
+            
+            tabs.forEach(t => t.classList.remove('active'));
+            forms.forEach(f => f.classList.remove('active'));
+            
+            if (tab === 'signup') {
+                tabs[0].classList.add('active');
+                forms[0].classList.add('active');
+            } else {
+                tabs[1].classList.add('active');
+                forms[1].classList.add('active');
+            }
+        }
+
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+
+        function handleSignup(event) {
+            event.preventDefault();
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            
+            // Check if account already exists
+            if (userAccounts[email]) {
+                alert('An account with this email already exists. Please login.');
+                return;
+            }
+            
+            // Create new account
+            userAccounts[email] = {
+                name: name,
+                email: email,
+                password: password
+            };
+            
+            alert('Account created successfully! Please login.');
+            switchTab('login');
+            document.getElementById('signupForm').reset();
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            // Check if account exists
+            if (!userAccounts[email]) {
+                alert('No account found with this email. Please sign up first.');
+                return;
+            }
+            
+            // Verify password
+            if (userAccounts[email].password !== password) {
+                alert('Incorrect password. Please try again.');
+                return;
+            }
+            
+            // Login successful
+            currentUser = userAccounts[email];
+            showChatInterface();
+        }
+
+        function showChatInterface() {
+            authContainer.style.display = 'none';
+            chatContainer.classList.add('active');
+            
+            // Show welcome message
+            const welcomeMsg = document.getElementById('welcomeMessage');
+            welcomeMsg.textContent = `Welcome back, ${currentUser.name}! 👋`;
+            
+            // Add initial bot message
+            setTimeout(() => {
+                addMessage('bot', `Hello ${currentUser.name}! I'm EduBot, your learning assistant. How can I help you today?`);
+                scrollToBottom();
+            }, 500);
+        }
+
+        function handleLogout() {
+            currentUser = null;
+            chatContainer.classList.remove('active');
+            authContainer.style.display = 'block';
+            messagesContainer.innerHTML = '<div class="welcome-message" id="welcomeMessage"></div>';
+            
+            // Reset forms
+            document.getElementById('loginForm').reset();
+            document.getElementById('signupForm').reset();
+        }
+
+        // Chat Functions
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            addMessage('user', message);
+            messageInput.value = '';
+
+            typingIndicator.classList.add('active');
+            scrollToBottom();
+
+            setTimeout(() => {
+                typingIndicator.classList.remove('active');
+                const response = chatbot.processMessage(message);
+                addMessage('bot', response);
+                scrollToBottom();
+            }, 1000 + Math.random() * 1000);
+        }
+
+        function sendQuickReply(message) {
+            messageInput.value = message;
+            sendMessage();
+        }
+
+        function addMessage(sender, text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const time = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${sender === 'bot' ? '🤖' : '👤'}</div>
+                <div class="message-content">
+                    <div>${text}</div>
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            chatbot.addToHistory(sender, text);
+        }
+
+        function scrollToBottom() {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+    </script>
+</body>
+</html>
